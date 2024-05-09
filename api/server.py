@@ -1,14 +1,12 @@
 import io
-from flask import Flask, request, jsonify, send_file # type: ignore
-from flask_cors import CORS # type: ignore
-from PIL import Image # type: ignore
+from flask import Flask, request, jsonify, send_file, make_response
+from flask_cors import CORS
+from PIL import Image
 from io import BytesIO
 from neural_transfer import perform_style_transfer
 
-# Rest of your Flask server code...
-
 app = Flask(__name__)
-CORS(app, resources={r"/upload": {"origins": "http://localhost:3000/"}})
+CORS(app)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -21,7 +19,6 @@ def allowed_file(filename):
 
 @app.route('/upload', methods=['POST'])
 def file_upload():
-
     if 'content' not in request.files or 'style' not in request.files:
         return jsonify({'error': 'No files found in the request'}), 400
 
@@ -46,18 +43,19 @@ def file_upload():
 
         content_image_bytes = BytesIO(content_image.read())
         art_style_image_bytes = BytesIO(art_style_image.read())
-        
+
         try:
             result = perform_style_transfer(content_image_bytes, art_style_image_bytes, num_steps, style_weight)
             result_bytes = BytesIO()
-            result.save(result_bytes, format='png')  
-            result_bytes.seek(0)  
+            result.save(result_bytes, format='png')
+            result_bytes.seek(0)
             generated_images.append(result_bytes)
         except Exception as e:
             return jsonify({'error': f'An error occurred during style transfer: {str(e)}'}), 500
-        
-    send_file.headers.add("Access-Control-Allow-Origin", "*")
-    return send_file(generated_images[0], mimetype='image/png'), 200
+
+    response = make_response(send_file(generated_images[0], mimetype='image/png'))
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 if __name__ == "__main__":
