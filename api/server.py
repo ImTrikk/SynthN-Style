@@ -1,7 +1,7 @@
 import io
-from flask import Flask, request, jsonify, send_file, make_response
-from flask_cors import CORS
-from PIL import Image
+from flask import Flask, request, jsonify, send_file, make_response # type: ignore
+from flask_cors import CORS # type: ignore
+from PIL import Image # type: ignore
 from io import BytesIO
 from neural_transfer import perform_style_transfer
 
@@ -26,11 +26,7 @@ def file_upload():
     art_style_images = request.files.getlist('style')
     num_steps = int(request.form.get('steps')) if 'steps' in request.form else None
     style_weight = int(request.form.get('weight')) if 'weight' in request.form else None
-
-    print(content_images)
-    print(art_style_images)
-    print(style_weight)
-    print(num_steps)
+    
 
     if num_steps == 0:
         return jsonify({'error': 'Please enter number of steps'}), 404
