@@ -14,7 +14,8 @@ import copy
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.set_default_device(device)
 
-imsize = 512 if torch.cuda.is_available() else 128
+# imsize = 512 if torch.cuda.is_available() else 128
+imsize = 512
 
 loader = transforms.Compose([
     transforms.Resize(imsize),
@@ -30,6 +31,8 @@ def perform_style_transfer(content_img, style_image, num_steps, style_weight):
 
  style_img = image_loader(style_image)
  content_img = image_loader(content_img)
+
+ print("Running perform art style transfer....")
 
 
  assert style_img.size() == content_img.size(), \

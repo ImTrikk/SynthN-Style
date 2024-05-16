@@ -92,19 +92,17 @@ function App() {
 
  return (
   <>
-   <Toaster position="top-center" />
-   <div className="flex flex-col items-center justify-center h-screen bg-black overflow-y-hidden p-40">
+   <div className="flex flex-col items-center justify-center h-screen overflow-y-hidden p-40 bg-black">
+    <Toaster position="top-center" />
     <div className="w-full relative">
      <div className="absolute">
       <img src="/images/bg.png" alt="" className="w-[2000px]" />
      </div>
      <div className="my-2 flex items-center gap-3">
-      <h1 className="font-black text-white text-2xl">
-       SynthN'Style{" "}
-      </h1>
-       <span className="font-medium text-xs text-white">
-        - A simple neural transfer desktop application
-       </span>
+      <h1 className="font-black text-white text-2xl">SynthN'Style </h1>
+      <span className="font-medium text-xs text-white">
+       - A simple neural transfer desktop application
+      </span>
      </div>
      <div className="p-10 bg-white rounded-lg shadow-lg bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-15 h-[600px]">
       <div className="flex gap-10">

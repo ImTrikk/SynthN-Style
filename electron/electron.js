@@ -1,13 +1,17 @@
 const path = require("path");
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { spawn } = require("child_process");
+const { Hidden } = require("@mui/material");
 
 const isDev = process.env.IS_DEV == "true" ? true : false;
 
 function createWindow() {
  const mainWindow = new BrowserWindow({
-  width: 800,
-  height: 600,
+  width: 1080,
+  height: 720,
+  autoHideMenuBar: true,
+  vibrancy: "under-window",
+  visualEffectState: "active",
   webPreferences: {
    preload: path.join(__dirname, "preload.js"),
   },
