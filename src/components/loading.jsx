@@ -1,9 +1,9 @@
 export const loading = () => {
- return(
+ return (
   <>
    <div>
     <h1>Generating image....</h1>
    </div>
   </>
- )
+ );
 };

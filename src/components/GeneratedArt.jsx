@@ -9,8 +9,8 @@ export const GenerateArt = ({ newArt }) => {
  }, [newArt]);
 
  return (
-  <div>
-   <img src={art} alt="" className="w-[380px] h-[380px] rounded" />
-  </div>
+  <>
+   <img src={art} alt="" className="w-[480px] h-[480px] rounded" />
+  </>
  );
 };

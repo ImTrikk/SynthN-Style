@@ -1,3 +1,5 @@
+/** @format */
+
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
 import { Slider } from "@mui/material";
@@ -18,60 +20,75 @@ function App() {
 
  const [downloadArt, setDownloadArt] = useState(null);
 
+ //  api call for hanldling neural transfer
  const handleGenerateArtCont = async () => {
   formData.set("steps", steps);
   formData.set("weight", styleWeight);
-  toast.promise(
-   fetch("http://localhost:5000/upload", {
-    method: "POST",
-    body: formData,
-   })
-    .then(async (res) => {
-     if (res.ok) {
-      const blob = await res.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      setDownloadArt(blob);
-      setNewArt(imageUrl);
-      return "Art generated successfully";
-     } else {
-      const errorMessage = await res.text();
-      throw new Error(errorMessage);
-     }
+
+  if (Array.from(formData.entries()).length === 0) {
+   toast.error("Please ensure inputs are not empty");
+  } else {
+   toast.promise(
+    fetch("http://localhost:5000/upload", {
+     method: "POST",
+     body: formData,
     })
-    .catch((error) => {
-     throw new Error(`Internal server error: ${error}`);
-    }),
-   {
-    loading: "Generating art...",
-    success: (message) => toast.success(message),
-    error: (error) => toast.error(error.message),
-   }
-  );
+     .then(async (res) => {
+      if (res.ok) {
+       const blob = await res.blob();
+       const imageUrl = URL.createObjectURL(blob);
+       setDownloadArt(blob);
+       setNewArt(imageUrl);
+       return "Art generated successfully";
+      } else {
+       const errorMessage = await res.text();
+       throw new Error(errorMessage);
+      }
+     })
+     .catch((error) => {
+      throw new Error(`Internal server error: ${error}`);
+     }),
+    {
+     loading: "Generating art...",
+     success: (message) => toast.success(message),
+     error: (error) => toast.error(error.message),
+    }
+   );
+  }
  };
 
+ //  handles content image
  const handleContentChange = (e) => {
   const file = e.target.files[0];
   resizeImage(file, 500, 500, function (resized) {
-   const resizedContent = new File([resized], file.name, { type: file.type });
+   const resizedContent = new File([resized], file.name, {
+    type: file.type,
+   });
    setContent(URL.createObjectURL(resizedContent));
    formData.set("content", resizedContent);
   });
  };
 
+ //  selecting custom art style by file
  const handleArtStyleChange = (e) => {
   const file = e.target.files[0];
   resizeImage(file, 500, 500, function (resized) {
-   const resizedStyle = new File([resized], file.name, { type: file.type });
+   const resizedStyle = new File([resized], file.name, {
+    type: file.type,
+   });
    formData.set("style", resizedStyle); // Use set instead of append to replace the style
    handleStyleSelect(URL.createObjectURL(resizedStyle));
   });
  };
 
+ //  selecting the art style
  const handleStyleSelect = async (styleUrl) => {
   try {
    const response = await fetch(styleUrl);
    const blobStyle = await response.blob();
-   const fileStyle = new File([blobStyle], "style.png", { type: "image/png" });
+   const fileStyle = new File([blobStyle], "style.png", {
+    type: "image/png",
+   });
    formData.set("style", fileStyle);
    setSelectedStyle(styleUrl);
    setArtStyle(styleUrl);
@@ -92,9 +109,9 @@ function App() {
 
  return (
   <>
-   <div className="flex flex-col items-center justify-center h-screen overflow-y-hidden p-40 bg-black">
+   <div className="flex flex-col items-center justify-center h-screen overflow-y-hidden p-10 bg-black">
     <Toaster position="top-center" />
-    <div className="w-full relative">
+    <div className="w-full relative lg:max-w-7xl 2xl:mx-auto">
      <div className="absolute">
       <img src="/images/bg.png" alt="" className="w-[2000px]" />
      </div>
@@ -104,8 +121,8 @@ function App() {
        - A simple neural transfer desktop application
       </span>
      </div>
-     <div className="p-10 bg-white rounded-lg shadow-lg bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-15 h-[600px]">
-      <div className="flex gap-10">
+     <div className="p-10 bg-white rounded-lg shadow-lg bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-15 h-auto mx-auto lg:max-w-7xl 2xl:mx-auto">
+      <div className="flex justify-between">
        <div>
         <h1 className="text-xs text-white">Upload Photo</h1>
         <div className="flex flex-col">
@@ -125,7 +142,9 @@ function App() {
            name="content"
            multiple
            onChange={handleContentChange}
-           style={{ display: "none" }}
+           style={{
+            display: "none",
+           }}
           />
          </label>
          {content && (
@@ -156,9 +175,10 @@ function App() {
          />
         </div>
        </div>
+       <hr className="text-white" />
        <div>
         <h1 className="text-xs text-white">Output:</h1>
-        <div className="bg-[#16161d] w-[400px] h-[400px] mt-4 rounded-lg flex items-center justify-center">
+        <div className="bg-[#16161d] w-[500px] h-[500px] mt-4 rounded-lg flex items-center justify-center">
          {newArt && <GenerateArt newArt={newArt} />}
         </div>
         <div className="mt-5">
@@ -176,17 +196,19 @@ function App() {
            name="style"
            multiple
            onChange={handleArtStyleChange}
-           style={{ display: "none" }}
+           style={{
+            display: "none",
+           }}
           />
          </label>
         </div>
        </div>
-       <div>
+       <div className="flex flex-col max-w-[430px]">
         <h1 className="text-xs text-white">Styles:</h1>
         <div className="mt-4">
          <Styles selectedStyle={handleStyleSelect} />
         </div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-end justify-between mb-4">
          <div className="mt-4">
           {artStyle && (
            <div>

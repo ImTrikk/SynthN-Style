@@ -7,8 +7,8 @@ const isDev = process.env.IS_DEV == "true" ? true : false;
 
 function createWindow() {
  const mainWindow = new BrowserWindow({
-  width: 1080,
-  height: 720,
+  width: 2000,
+  height: 900,
   autoHideMenuBar: true,
   vibrancy: "under-window",
   visualEffectState: "active",
@@ -25,7 +25,7 @@ function createWindow() {
  mainWindow.loadURL(
   isDev
    ? "http://localhost:3000"
-   : `file://${path.join(__dirname, "../dist/index.html")}`
+   : `file://${path.join(__dirname, "../dist/index.html")}`,
  );
  // Open the DevTools.
  if (isDev) {

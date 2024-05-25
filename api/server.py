@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, send_file, make_response
 from flask_cors import CORS
 from PIL import Image
 from io import BytesIO
-from neural_transfer import perform_style_transfer
+from model.main import perform_style_transfer
 import logging
 
 app = Flask(__name__)
@@ -33,7 +33,7 @@ def file_upload():
         return jsonify({'error': 'Please enter a positive number of steps'}), 400
 
     generated_images = []
-
+    
     for content_image, art_style_image in zip(content_images, art_style_images):
         if not allowed_file(content_image.filename) or not allowed_file(art_style_image.filename):
             return jsonify({'error': 'Invalid file format. Allowed formats are PNG, JPG, and JPEG.'}), 400
