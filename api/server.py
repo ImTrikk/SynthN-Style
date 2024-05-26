@@ -21,8 +21,11 @@ def allowed_file(filename):
 
 @app.route('/upload', methods=['POST'])
 def file_upload():
-    if 'content' not in request.files or 'style' not in request.files:
-        return jsonify({'error': 'No files found in the request'}), 400
+    if 'content' not in request.files:
+        return jsonify({'error': 'No files content found'}), 400
+    
+    if 'style' not in request.files:
+        return jsonify({'error': 'No files style found'}), 400
 
     content_images = request.files.getlist('content')
     art_style_images = request.files.getlist('style')

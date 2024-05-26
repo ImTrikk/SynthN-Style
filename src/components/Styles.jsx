@@ -12,6 +12,9 @@ export const Styles = ({ selectedStyle }) => {
   "/images/Abstract-Art.png",
   "/images/Bedroom-oil-canvas-Vincent-van-Gogh-Art-1889.png",
   "/images/change-inspire-pass-it-on-jennifer-main.png",
+  "/images/van_gogh_self-portrait_with_grey_felt_hat.png",
+  "/images/soft_ghilbi 1.png",
+  "/images/popart.png",
  ];
 
  const [pressedIndex, setPressedIndex] = useState(null);

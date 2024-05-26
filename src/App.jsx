@@ -1,72 +1,58 @@
 /** @format */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Toaster, toast } from "sonner";
-import { Slider } from "@mui/material";
 import { resizeImage } from "../utils/resize";
-import { GenerateArt } from "./components/GeneratedArt";
-
-import { FaImage } from "react-icons/fa6";
-import { Styles } from "./components/Styles";
+import { LeftComponent } from "./components/leftComponent";
+import { CenterPanel } from "./components/CenterPanel";
+import { RightPanel } from "./components/RightPanel";
 
 function App() {
  const [formData, setFormData] = useState(new FormData());
- const [content, setContent] = useState(null);
  const [artStyle, setArtStyle] = useState(null);
  const [newArt, setNewArt] = useState(null);
- const [steps, setSteps] = useState(50);
- const [styleWeight, setStyleWeight] = useState(50);
- const [selectedStyle, setSelectedStyle] = useState(null);
-
  const [downloadArt, setDownloadArt] = useState(null);
 
  //  api call for hanldling neural transfer
  const handleGenerateArtCont = async () => {
-  formData.set("steps", steps);
-  formData.set("weight", styleWeight);
-
-  if (Array.from(formData.entries()).length === 0) {
-   toast.error("Please ensure inputs are not empty");
-  } else {
-   toast.promise(
-    fetch("http://localhost:5000/upload", {
-     method: "POST",
-     body: formData,
+  toast.promise(
+   fetch("http://localhost:5000/upload", {
+    method: "POST",
+    body: formData,
+   })
+    .then(async (res) => {
+     if (res.ok) {
+      const blob = await res.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      setDownloadArt(blob);
+      setNewArt(imageUrl);
+      return "Art generated successfully";
+     } else {
+      const errorMessage = await res.text();
+      throw new Error(errorMessage);
+     }
     })
-     .then(async (res) => {
-      if (res.ok) {
-       const blob = await res.blob();
-       const imageUrl = URL.createObjectURL(blob);
-       setDownloadArt(blob);
-       setNewArt(imageUrl);
-       return "Art generated successfully";
-      } else {
-       const errorMessage = await res.text();
-       throw new Error(errorMessage);
-      }
-     })
-     .catch((error) => {
-      throw new Error(`Internal server error: ${error}`);
-     }),
-    {
-     loading: "Generating art...",
-     success: (message) => toast.success(message),
-     error: (error) => toast.error(error.message),
-    }
-   );
-  }
+    .catch((error) => {
+     throw new Error(`Internal server error: ${error}`);
+    }),
+   {
+    loading: "Generating art...",
+    success: (message) => toast.success(message),
+    error: (error) => toast.error(error.message),
+   }
+  );
  };
 
- //  handles content image
- const handleContentChange = (e) => {
-  const file = e.target.files[0];
-  resizeImage(file, 500, 500, function (resized) {
-   const resizedContent = new File([resized], file.name, {
-    type: file.type,
-   });
-   setContent(URL.createObjectURL(resizedContent));
-   formData.set("content", resizedContent);
-  });
+ const contentChange = (e) => {
+  formData.set("content", e);
+ };
+
+ const stepsChange = (e) => {
+  formData.set("steps", e);
+ };
+
+ const styleWeightChange = (e) => {
+  formData.set("weight", e);
  };
 
  //  selecting custom art style by file
@@ -76,7 +62,8 @@ function App() {
    const resizedStyle = new File([resized], file.name, {
     type: file.type,
    });
-   formData.set("style", resizedStyle); // Use set instead of append to replace the style
+   formData.set("style", resizedStyle);
+   setArtStyle(resizedStyle);
    handleStyleSelect(URL.createObjectURL(resizedStyle));
   });
  };
@@ -90,149 +77,57 @@ function App() {
     type: "image/png",
    });
    formData.set("style", fileStyle);
-   setSelectedStyle(styleUrl);
-   setArtStyle(styleUrl);
+   // setSelectedStyle(fileStyle);
+   setArtStyle(fileStyle);
   } catch (error) {
    console.error("Error fetching or appending style file:", error);
   }
  };
 
- // handle the download functionality
- const handleDownload = () => {
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(downloadArt);
-  link.download = "output.png";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+ //trigger generate art
+ const generateArt = (e) => {
+  if (e) {
+   handleGenerateArtCont();
+  }
  };
 
  return (
   <>
-   <div className="flex flex-col items-center justify-center h-screen overflow-y-hidden p-10 bg-black">
-    <Toaster position="top-center" />
+   <div className="flex flex-col items-center justify-center h-screen overflow-y-hidden bg-black">
+   <Toaster position="top-center" />
     <div className="w-full relative lg:max-w-7xl 2xl:mx-auto">
      <div className="absolute">
       <img src="/images/bg.png" alt="" className="w-[2000px]" />
      </div>
-     <div className="my-2 flex items-center gap-3">
-      <h1 className="font-black text-white text-2xl">SynthN'Style </h1>
-      <span className="font-medium text-xs text-white">
-       - A simple neural transfer desktop application
-      </span>
-     </div>
-     <div className="p-10 bg-white rounded-lg shadow-lg bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-15 h-auto mx-auto lg:max-w-7xl 2xl:mx-auto">
-      <div className="flex justify-between">
-       <div>
-        <h1 className="text-xs text-white">Upload Photo</h1>
-        <div className="flex flex-col">
-         <label
-          htmlFor="contentInput"
-          className="w-[170px] h-[170px] mt-4 outline-dashed outline-white rounded-lg flex items-center justify-center cursor-pointer"
-         >
-          <div className="flex flex-col items-center text-center">
-           <FaImage size={50} className="text-white" />
-           <h1 className="text-xs text-white">
-            Click here to select upload photo
-           </h1>
-          </div>
-          <input
-           type="file"
-           id="contentInput"
-           name="content"
-           multiple
-           onChange={handleContentChange}
-           style={{
-            display: "none",
-           }}
-          />
-         </label>
-         {content && (
-          <div className="mt-5">
-           <h1 className="text-xs text-white">Selected photo: </h1>
-           <img src={content} alt="" className="w-[170px] mt-2 rounded " />
-          </div>
-         )}
-        </div>
-        <div className="w-[170px] mt-5">
-         <h1 className="text-xs text-white">Number of steps: </h1>
-         <Slider
-          defaultValue={50}
-          max={500}
-          aria-label="Default"
-          valueLabelDisplay="auto"
-          value={steps}
-          onChange={(e, value) => setSteps(value)}
-         />
-         <h1 className="text-white text-xs">Style Weight</h1>
-         <Slider
-          defaultValue={1000}
-          max={100000}
-          aria-label="Default"
-          valueLabelDisplay="auto"
-          value={styleWeight}
-          onChange={(e, value) => setStyleWeight(value)}
-         />
-        </div>
-       </div>
-       <hr className="text-white" />
-       <div>
-        <h1 className="text-xs text-white">Output:</h1>
-        <div className="bg-[#16161d] w-[500px] h-[500px] mt-4 rounded-lg flex items-center justify-center">
-         {newArt && <GenerateArt newArt={newArt} />}
-        </div>
-        <div className="mt-5">
-         <h1 className="text-xs text-white">
-          Upload your own style to match with content
-         </h1>
-         <label
-          htmlFor="styleInput"
-          className="h-10 mt-2 w-full rounded-2xl bg-white flex items-center justify-center text-xs cursor-pointer"
-         >
-          Upload style
-          <input
-           type="file"
-           id="styleInput"
-           name="style"
-           multiple
-           onChange={handleArtStyleChange}
-           style={{
-            display: "none",
-           }}
-          />
-         </label>
-        </div>
-       </div>
-       <div className="flex flex-col max-w-[430px]">
-        <h1 className="text-xs text-white">Styles:</h1>
-        <div className="mt-4">
-         <Styles selectedStyle={handleStyleSelect} />
-        </div>
-        <div className="flex items-end justify-between mb-4">
-         <div className="mt-4">
-          {artStyle && (
-           <div>
-            <h1 className="text-xs text-white">Selected style: </h1>
-            <img src={artStyle} alt="" className="w-[120px] mt-2 rounded " />
-           </div>
-          )}
-         </div>
-         <div className="flex flex-col items-end w-[180px] justify-end mt-5 relative gap-4">
-          <button
-           onClick={handleDownload}
-           className="px-5 w-full h-10 bg-white text-white text-xs rounded shadow-lg bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-15"
-          >
-           Download
-          </button>
-          <button
-           onClick={handleGenerateArtCont}
-           className="px-5 text-xs w-full bg-blue-500 text-white font-bold h-10 flex items-center justify-center rounded"
-          >
-           Generate Artstyle✨
-          </button>
-         </div>
-        </div>
-       </div>
+     <div className="p-4 bg-white rounded-lg shadow-lg bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-15 h-auto mx-auto lg:max-w-7xl 2xl:mx-auto">
+      <div className="my-2 flex items-center gap-3">
+       <h1 className="font-black text-white text-2xl">SynthN'Style </h1>
+       <span className="font-medium text-sm text-white">
+        - Art Application Using Neural Transfer with VGG19
+       </span>
+      </div>
+      <div className="my-2 mb-6">
+       <hr />
+      </div>
+      <div className="flex justify-between px-6">
+       {/* left */}
+       <LeftComponent
+        contentChange={(e) => contentChange(e)}
+        stepsChange={(e) => stepsChange(e)}
+        styleWeightChange={(e) => styleWeightChange(e)}
+       />
+       {/* center */}
+       <CenterPanel
+        newArt={newArt}
+        handleArtStyleChange={(e) => handleArtStyleChange(e)}
+       />
+       {/* right */}
+       <RightPanel
+        artStyle={artStyle}
+        selectedPreStyle={(e) => handleStyleSelect(e)}
+        generateArt={(e) => generateArt(e)}
+        downloadArt={downloadArt}
+       />
       </div>
      </div>
     </div>
