@@ -17,16 +17,36 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 logging.basicConfig(level=logging.INFO)
 
 def allowed_file(filename):
+    """
+    Check if the file has an allowed extension.
+    
+    Args:
+        filename (str): The name of the file to check.
+        
+    Returns:
+        bool: True if the file has an allowed extension, False otherwise.
+    """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/upload', methods=['POST'])
 def file_upload():
+    """
+    Handle file upload for style transfer. Expects 'content' and 'style' files in the request,
+    along with 'steps' and 'weight' form data.
+
+    Returns:
+        Response: A JSON response with an error message if there is an issue, or a PNG image of
+        the style transfer result if successful.
+    """
+    
     if 'content' not in request.files:
         return jsonify({'error': 'No files content found'}), 400
     
     if 'style' not in request.files:
         return jsonify({'error': 'No files style found'}), 400
 
+
+    # Get data from request
     content_images = request.files.getlist('content')
     art_style_images = request.files.getlist('style')
     num_steps = int(request.form.get('steps', 0))
@@ -34,6 +54,9 @@ def file_upload():
 
     if num_steps <= 0:
         return jsonify({'error': 'Please enter a positive number of steps'}), 400
+    if style_weight <= 0:
+        return jsonify({'error': 'Please enter a positive number of style weight'}), 400
+
 
     generated_images = []
     
@@ -62,10 +85,18 @@ def file_upload():
     return response
 
 def handle_exit(signum, frame):
+    """
+    Handle graceful shutdown on receiving SIGINT or SIGTERM signals.
+
+    Args:
+        signum (int): The signal number.
+        frame (frame object): The current stack frame.
+    """
     logging.info('Gracefully shutting down...')
     # Perform cleanup tasks here
     sys.exit(0)
 
+# Register signal handlers for graceful shutdown
 signal.signal(signal.SIGINT, handle_exit)
 signal.signal(signal.SIGTERM, handle_exit)
 

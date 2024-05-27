@@ -13,7 +13,10 @@ function App() {
  const [newArt, setNewArt] = useState(null);
  const [downloadArt, setDownloadArt] = useState(null);
 
- //  api call for hanldling neural transfer
+ /**
+  * API call for handling neural style transfer.
+  * It posts formData to the backend and handles the response.
+  */
  const handleGenerateArtCont = async () => {
   toast.promise(
    fetch("http://localhost:5000/upload", {
@@ -36,21 +39,24 @@ function App() {
      throw new Error(`Internal server error: ${error}`);
     }),
    {
-    loading: "Generating art...",
+    loading: "Generating art, Please wait...",
     success: (message) => toast.success(message),
     error: (error) => toast.error(error.message),
    }
   );
  };
 
+ //append content image to forms
  const contentChange = (e) => {
   formData.set("content", e);
  };
 
+ // append number of steps to forms
  const stepsChange = (e) => {
   formData.set("steps", e);
  };
 
+ //append style weight to forms
  const styleWeightChange = (e) => {
   formData.set("weight", e);
  };
@@ -94,7 +100,7 @@ function App() {
  return (
   <>
    <div className="flex flex-col items-center justify-center h-screen overflow-y-hidden bg-black">
-   <Toaster position="top-center" />
+    <Toaster position="top-center" />
     <div className="w-full relative lg:max-w-7xl 2xl:mx-auto">
      <div className="absolute">
       <img src="/images/bg.png" alt="" className="w-[2000px]" />
