@@ -30,7 +30,9 @@ With just a simple command, the client and server sides will automatically be ex
 ```
 ## Screenshots
 
+User Interface
 ![Screenshot 2024-05-26 102945](https://github.com/ImTrikk/SynthN-Style/assets/130761529/5ed6e39a-65d6-48d2-9b9f-e83e4bbee7c9)
+Image Upload and Outputs
 ![Screenshot 2024-05-26 102830](https://github.com/ImTrikk/SynthN-Style/assets/130761529/33cad862-1c05-4869-a26f-9dad2dda2a9b)
 
 
