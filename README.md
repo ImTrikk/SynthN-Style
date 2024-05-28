@@ -12,7 +12,7 @@ To clone this repository in your machine go to your preferred directory then ope
 
 ## Installation
 
-Install the necessary projects to run the desktop application. Make sure you are in the "SynthN'Style" directory. 
+Install the necessary packages to run the desktop application. Make sure you are in the "SynthN'Style" directory. 
 
 ```bash
   npm install
